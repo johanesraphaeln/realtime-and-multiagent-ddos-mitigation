@@ -1,0 +1,36 @@
+{
+  "system": {
+    "cpu_info": {
+      "physical_cores": 1,
+      "total_cores": 1,
+      "processor_speed": 3110.398,
+      "cpu_usage_per_core": {
+        "0": 0
+      },
+      "total_cpu_usage": 2.2
+    },
+    "memory_info": {
+      "total_memory": 1.9137382507324219,
+      "available_memory": 0.3784217834472656,
+      "used_memory": 1.3662834167480469,
+      "memory_percentage": 80.2
+    },
+    "disk_info": {
+      "total_space": 48.41845703125,
+      "used_space": 15.201675415039062,
+      "free_space": 30.72635269165039,
+      "usage_percentage": 33.1
+    },
+    "alert_info": {
+      "text": "01/09-04:46:00.331636 [] [1:100002:1] Possible SYN DDoS [] [Priority: 0] {TCP} 142.12.76.41:39688 -> 192.168.1.14:0",
+      "timestamp": "01/09-04:46:00.331636",
+      "srcip": "142.12.76.41",
+      "dstip": "192.168.1.14:0",
+      "agent_id": "002",
+      "agent_name": "wazuhagent2-VirtualBox",
+      "agent_ip": "192.168.1.14",
+      "api_key": "eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ3YXp1aCIsImF1ZCI6IldhenVoIEFQSSBSRVNUIiwibmJmIjoxNzA0NzUwMzgyLCJleHAiOjE3MDQ3NTEyODIsInN1YiI6IndhenVoLXd1aSIsInJ1bl9hcyI6ZmFsc2UsInJiYWNfcm9sZXMiOlsxXSwicmJhY19tb2RlIjoid2hpdGUifQ.APViDsgPgluDlFKCqOud_iC20xAsvj13HoJcbI6Bxucdx3AqkMMXc-6aMo0UtgFVg68ZE_Zc7DNtcrpwvgMGapzIAZDy1qqhHJlweny-Nfzm9pehkQY8po-PCWU6vaI0T0OB37Ngko-uW-9mp_Q3K-fvXzwL7rkY3SdQyzEC2GpCoJ9G"
+    },
+    "under_attack": true
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "command": "!check-system-resource",
+  "custom": true,
+  "arguments": [
+    "$exec.text",
+    "$exec.all_fields.predecoder.timestamp",
+    "$exec.all_fields.data.srcip",
+    "$exec.all_fields.data.dstip",
+    "$exec.all_fields.agent.id",
+    "$exec.all_fields.agent.name",
+    "$exec.all_fields.agent.ip",
+    "$authenticate_wazuh_manager.body"
+  ]
+}

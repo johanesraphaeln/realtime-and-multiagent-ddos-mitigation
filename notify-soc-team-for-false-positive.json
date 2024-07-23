@@ -1,0 +1,48 @@
+{
+  "content": "Alert: DDoS false Alarm has occurred!",
+  "embeds": [
+    {
+      "title": "Alert Details",
+      "description": "$exec.system.alert_info.text",
+      "color": 16711680,
+      "fields": [
+        {
+          "name": "Timestamp",
+          "value": "$exec.system.alert_info.timestamp"
+        },
+        {
+          "name": "Details",
+          "value": "SourceIP: $exec.system.alert_info.srcip\nDestinationIP: $exec.system.alert_info.dstip"
+        },
+        {
+          "name": "Agent",
+          "value": "ID: $exec.system.alert_info.agent_id\nName: $exec.system.alert_info.agent_name\nIP: $exec.system.alert_info.agent_ip"
+        }
+      ]
+    },
+    {
+      "title": "System Information",
+      "description": "System details for reference:",
+      "color": 65280,
+      "fields": [
+        {
+          "name": "Memory",
+          "value": "Total: $exec.system.memory_info.total_memory GB\nUsed: $exec.system.memory_info.used_memory GB\nFree: $exec.system.memory_info.available_memory GB\nUsage: $exec.system.memory_info.memory_percentage%"
+        },
+        {
+          "name": "CPU",
+          "value": "Physical Cores: $exec.system.cpu_info.physical_cores\nTotal Cores: $exec.system.cpu_info.total_cores\nProcessor Speed: $exec.system.cpu_info.processor_speed MHz\nTotal CPU Usage: $exec.system.cpu_info.total_cpu_usage%"
+        },
+        {
+          "name": "Disk",
+          "value": "Total Space: $exec.system.disk_info.total_space GB\nUsed Space: $exec.system.disk_info.used_space GB\nFree Space: $exec.system.disk_info.free_space GB\nUsage: $exec.system.disk_info.usage_percentage%"
+        }
+      ]
+    },
+    {
+      "title": "Action",
+      "description": "Further analysis is strongly recommended!",
+      "color": 65280
+    }
+  ]
+}

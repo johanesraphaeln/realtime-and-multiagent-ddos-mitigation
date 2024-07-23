@@ -1,0 +1,30 @@
+{
+  "agent": {
+    "name": "joelserver-VirtualBox",
+    "id": "000"
+  },
+  "manager": {
+    "name": "joelserver-VirtualBox"
+  },
+  "rule": {
+    "firedtimes": 33,
+    "mail": false,
+    "level": 6,
+    "description": "IDS event.",
+    "groups": ["ids"],
+    "id": "20101"
+  },
+  "decoder": {
+    "parent": "snort",
+    "name": "snort"
+  },
+  "full_log": "[] [1:10006:1] Possible ICMP DoS []",
+  "input": {
+    "type": "log"
+  },
+  "@timestamp": "2023-11-08T08:54:27.845Z",
+  "location": "/var/log/snort/alert",
+  "id": "1699433667.250183",
+  "timestamp": "2023-11-08T15:54:27.845+0700",
+  "_id": "HZMjrosBjvEckhpU5VGb"
+}

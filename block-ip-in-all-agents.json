@@ -1,0 +1,8 @@
+{
+  "alert": {
+    "data": {
+      "srcip": "$exec.system.alert_info.srcip"
+    }
+  },
+  "command": "!firewall-drop"
+}
