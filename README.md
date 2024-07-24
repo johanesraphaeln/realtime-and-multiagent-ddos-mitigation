@@ -44,6 +44,7 @@ The system flow is designed to handle DDoS attacks through a structured integrat
 ![System Flow Diagram](system-architecture.png)
 
 ## Table of Contents
+
 - [Detection and Prevention System to Handle DDoS Attack in Realtime and Multi Agent](#detection-and-prevention-system-to-handle-ddos-attack-in-realtime-and-multi-agent)
   - [Overview](#overview)
   - [System Design](#system-design)
@@ -57,18 +58,23 @@ The system flow is designed to handle DDoS attacks through a structured integrat
     - [2. Create Custom Active Response Script for Wazuh](#2-create-custom-active-response-script-for-wazuh)
     - [3. Create Notification Text Channel for SOC on Discord](#3-create-notification-text-channel-for-soc-on-discord)
     - [4. Create Shuffle Playbook](#4-create-shuffle-playbook)
+      - [Get Wazuh Alerts](#get-wazuh-alerts)
+    - [Authenticate Wazuh](#authenticate-wazuh)
       - [Run System Resource Check](#run-system-resource-check)
+      - [Determine Alert](#determine-alert)
       - [Notify SOC Team for False Positive](#notify-soc-team-for-false-positive)
       - [Notify SOC Team for True Positive](#notify-soc-team-for-true-positive)
       - [Block IP in All Wazuh-Agents](#block-ip-in-all-wazuh-agents)
     - [5. Configure Security Tools](#5-configure-security-tools)
 
 ## Introduction
+
 To effectively handle DDoS attacks, it is essential to integrate multiple security tools and establish a structured workflow. This ensures a comprehensive response from detecting the attack to notifying the Security Operations Center (SOC) and executing automated responses via Security Orchestration, Automation, and Response (SOAR) systems.
 
 ## Initial Setup
 
 ### 1. Create Snort Rules
+
 Define rules in Snort to detect malicious traffic based on specified patterns. Note that legitimate traffic may also be flagged.
 
 ```bash
@@ -76,7 +82,8 @@ alert tcp any any -> any 80 (msg:"Possible DDoS attack"; flags:S;)
 ```
 
 ### 2. Create Custom Active Response Script for Wazuh
-Use Python's psutil library to monitor system resources. The script is placed in each Wazuh agent's directory and configured in the ossec.conf file on the Wazuh manager.
+
+Use Python's psutil library to monitor system resources. The script is placed in each Wazuh agent's directory in /ossec-agent/active-response/bin and configured in the ossec.conf file on the Wazuh manager.
 
 ```python
 #!/usr/bin/env python
@@ -118,13 +125,24 @@ def get_disk_info():
         }
     return disk_info
 
+def get_alert_info():
+   """
+   Retrieve the alert information from the arguments that came from Shuffle-Wazuh Custom AR
+   """
+
+def get_under_attack():
+   """
+   Create a determination if the system is under attack based on the CPU and Memory usage information
+   """
+
 def get_system_resources():
-    
+
     return {
-        'cpu_info': get_cpu_info,
-        'memory_info': get_memory_info,
-        'disk_usage': get_disk_info
-        'alert_info': get_alert_info
+        'cpu_info': get_cpu_info(),
+        'memory_info': get_memory_info(),
+        'disk_usage': get_disk_info(),
+        'alert_info': get_alert_info(),
+        'under_attack': get_under_attack()
     }
 
 def send_to_webhook(data):
@@ -189,12 +207,29 @@ sudo systemctl restart wazuh-manager
 ```
 
 ### 3. Create Notification Text Channel for SOC on Discord
-Set up a Discord text channel to notify the SOC using integrated webhooks.
+
+Set up a Discord server to notify the SOC using integrated webhooks.
 
 ### 4. Create Shuffle Playbook
+
 Design a playbook in Shuffle to orchestrate the response to DDoS attacks. Integrate security tools via webhooks to receive alert data and system resource information, and use Wazuh's API to trigger custom active responses.
 
+#### Get Wazuh Alerts
+
+```plaintext
+Use HTTP Webhook and configured it in the Wazuh Manager
+```
+
+### Authenticate Wazuh
+
+```plaintext
+Use the credentials given by Wazuh Manager and place it in WAZUH to get the token authentication
+```
+
 #### Run System Resource Check
+
+After we get the token authentication, we run the Custom Active Response from Shuffle that would be executed in the corresponding Wazuh Agent
+
 ```json
 {
   "command": "!check-system-resource",
@@ -210,6 +245,58 @@ Design a playbook in Shuffle to orchestrate the response to DDoS attacks. Integr
     "$authenticate_wazuh_manager.body"
   ]
 }
+```
+
+#### Determine Alert
+
+Based on the system resource check, it will be return the information with POST request to newly configured Shuffle Webhook
+
+```json
+{
+  "system": {
+    "cpu_info": {
+      "physical_cores": 1,
+      "total_cores": 1,
+      "processor_speed": 3110.398,
+      "cpu_usage_per_core": {
+        "0": 0
+      },
+      "total_cpu_usage": 2.2
+    },
+    "memory_info": {
+      "total_memory": 1.9137382507324219,
+      "available_memory": 0.3784217834472656,
+      "used_memory": 1.3662834167480469,
+      "memory_percentage": 80.2
+    },
+    "disk_info": {
+      "total_space": 48.41845703125,
+      "used_space": 15.201675415039062,
+      "free_space": 30.72635269165039,
+      "usage_percentage": 33.1
+    },
+    "alert_info": {
+      "text": "01/09-04:46:00.331636 [] [1:100002:1] Possible SYN DDoS [] [Priority: 0] {TCP} 142.12.76.41:39688 -> 192.168.1.14:0",
+      "timestamp": "01/09-04:46:00.331636",
+      "srcip": "142.12.76.41",
+      "dstip": "192.168.1.14:0",
+      "agent_id": "002",
+      "agent_name": "wazuhagent2-VirtualBox",
+      "agent_ip": "192.168.1.14",
+      "api_key": "eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ3YXp1aCIsImF1ZCI6IldhenVoIEFQSSBSRVNUIiwibmJmIjoxNzA0NzUwMzgyLCJleHAiOjE3MDQ3NTEyODIsInN1YiI6IndhenVoLXd1aSIsInJ1bl9hcyI6ZmFsc2UsInJiYWNfcm9sZXMiOlsxXSwicmJhY19tb2RlIjoid2hpdGUifQ.APViDsgPgluDlFKCqOud_iC20xAsvj13HoJcbI6Bxucdx3AqkMMXc-6aMo0UtgFVg68ZE_Zc7DNtcrpwvgMGapzIAZDy1qqhHJlweny-Nfzm9pehkQY8po-PCWU6vaI0T0OB37Ngko-uW-9mp_Q3K-fvXzwL7rkY3SdQyzEC2GpCoJ9G"
+    },
+    "under_attack": true
+  }
+}
+```
+
+With the information on "under_attack" field, use IF statement in Shuffle to create a different path to be executed
+```python
+if ("$exec.system.cpu_info.total_cpu_usage" > 80):
+  under_attack = True
+elif ("$exec.system.memory_info.memory_percentage" > 80):
+  under_attack = False
+
 ```
 
 #### Notify SOC Team for False Positive
@@ -265,6 +352,7 @@ Design a playbook in Shuffle to orchestrate the response to DDoS attacks. Integr
 ```
 
 #### Notify SOC Team for True Positive
+
 ```json
 {
   "content": "Alert: A DDoS attack has occurred!",
@@ -317,6 +405,7 @@ Design a playbook in Shuffle to orchestrate the response to DDoS attacks. Integr
 ```
 
 #### Block IP in All Wazuh-Agents
+If the system's under_attack is True, then run this script that will be configured in all Wazuh Agents
 ```json
 {
   "alert": {
@@ -326,8 +415,8 @@ Design a playbook in Shuffle to orchestrate the response to DDoS attacks. Integr
   },
   "command": "!firewall-drop"
 }
-
 ```
 
 ### 5. Configure Security Tools
+
 Configure Wazuh to read Snort alerts and forward them to Shuffle. Set up webhooks in Shuffle to send summarized notifications to the SOC's text channel on Discord.
